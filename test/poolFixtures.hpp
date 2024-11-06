@@ -451,4 +451,18 @@ TEST_P(umfPoolTest, realloc_compliance) {
 
 TEST_P(umfPoolTest, free_compliance) { free_compliance_test(pool.get()); }
 
+TEST_P(umfPoolTest, mallocUsableSize) {
+    for (size_t allocSize : {0, 32, 48, 1024, 8192}) {
+        char *ptr = static_cast<char *>(umfPoolMalloc(pool.get(), allocSize));
+        size_t result = umfPoolMallocUsableSize(pool.get(), ptr);
+        EXPECT_TRUE(result == 0 or result >= allocSize);
+
+        for (size_t i = 0; i < result; i++) {
+            ptr[i] = 123;
+        }
+
+        umfPoolFree(pool.get(), ptr);
+    }
+}
+
 #endif /* UMF_TEST_POOL_FIXTURES_HPP */
